@@ -36,7 +36,7 @@ Image.MAX_IMAGE_PIXELS = None
 # Randkacheln werden auf volle Kachelgroesse aufgefuellt, weil Leaflet jede Kachel auf
 # tileSize skaliert. Die Fuellfarbe entspricht dem Hintergrund der Website, dadurch ist
 # der Uebergang am Bildrand unsichtbar.
-DEFAULT_BG = (14, 17, 21)
+DEFAULT_BG = (10, 17, 16)
 
 
 def build_pyramid(src, out_dir, tile_size=256, quality=82, bg=DEFAULT_BG, verbose=True):

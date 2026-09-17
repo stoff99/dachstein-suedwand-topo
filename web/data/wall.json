@@ -7,16 +7,16 @@
     "note": "Sobald das echte Panorama gestitcht ist, mit tools/make_tiles.py ersetzen."
   },
   "image": {
-    "version": "6aabad93",
+    "version": "6aabba1b",
     "width": 10240,
     "height": 5120,
     "tileSize": 256,
     "minZoom": 0,
     "maxNativeZoom": 6,
     "maxZoom": 9,
-    "tileUrl": "tiles/{z}/{x}/{y}.jpg?v=6aabad93",
+    "tileUrl": "tiles/{z}/{x}/{y}.jpg?v=6aabba1b",
     "tileCount": 1074,
     "source": "wall_placeholder.jpg",
-    "generated": "2026-09-17 11:06:27"
+    "generated": "2026-09-17 11:59:55"
   }
 }

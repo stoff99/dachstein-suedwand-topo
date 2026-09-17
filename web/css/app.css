@@ -4,15 +4,30 @@
      color-scheme sorgt dafür, dass auch Scrollbalken und Formularelemente mitziehen. */
   color-scheme: dark;
 
-  --bg:        #0d1014;
-  --panel:     #151a21;
-  --panel-2:   #1c232c;
-  --line:      #2a333f;
-  --ink:       #e8eef6;
-  --muted:     #8b98a9;
-  --accent:    #f0a93b;
+  /* Markenfarben nach dem Logo und mayerl-alpin.at */
+  --brand:       #3ca098;
+  --brand-light: #4fb8ae;
+  --brand-dark:  #276863;
+  --brand-ink:   #ffffff;      /* Text auf der Markenfarbe */
+  --brand-soft:  #74b8b1;      /* gedämpft, für kleine wiederkehrende Beschriftungen */
+
+  /* Neutrale Töne mit leichtem Grünstich, damit sie zur Marke gehören statt
+     danebenzustehen. Als Zahlentripel, weil mehrere Flächen sie mit Deckkraft
+     brauchen - so steht jeder Ton nur an einer Stelle. */
+  --bg-rgb:    10 17 16;
+  --panel-rgb: 18 30 28;
+  --bg:        rgb(var(--bg-rgb));
+  --panel:     rgb(var(--panel-rgb));
+  --panel-2:   #1d2e2b;
+  --line:      #2c413e;
+  --ink:       #e7efed;
+  --muted:     #8da5a1;
+  --accent:    var(--brand);
+
+  /* Warnfarbe bleibt bewusst warm: sie soll gerade nicht nach Marke aussehen. */
   --warn-bg:   #3a2a10;
   --warn-ink:  #f8ce8a;
+
   --radius:    12px;
   --shadow:    0 10px 34px rgba(0,0,0,.55);
   --panel-w:   372px;
@@ -48,15 +63,15 @@ html, body {
   display: inline-flex; align-items: center; gap: 7px;
   transition: background .15s, border-color .15s, color .15s;
 }
-.btn:hover { background: #253040; border-color: #3b485a; }
+.btn:hover { background: #24322f; border-color: #3a4d4a; }
 .btn:active { transform: translateY(1px); }
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.btn-ghost { background: rgba(21,26,33,.72); backdrop-filter: blur(10px); }
-.btn-primary { background: var(--accent); border-color: var(--accent); color: #1a1205; font-weight: 640; }
-.btn-primary:hover { background: #ffc164; border-color: #ffc164; }
+.btn-ghost { background: rgb(var(--panel-rgb) / .72); backdrop-filter: blur(10px); }
+.btn-primary { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); font-weight: 640; }
+.btn-primary:hover { background: var(--brand-light); border-color: var(--brand-light); }
 .btn-back { background: transparent; border-color: transparent; color: var(--muted); padding: 5px 8px 5px 4px; }
-.btn.is-on { background: var(--accent); border-color: var(--accent); color: #1a1205; font-weight: 650; }
-.btn.is-on:hover { background: #ffc164; border-color: #ffc164; }
+.btn.is-on { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); font-weight: 650; }
+.btn.is-on:hover { background: var(--brand-light); border-color: var(--brand-light); }
 .btn-back:hover { background: var(--panel-2); color: var(--ink); }
 
 .badge {
@@ -67,12 +82,16 @@ html, body {
 .badge-warn { background: var(--warn-bg); color: var(--warn-ink); }
 
 /* ----------------------------------------------------------------------- Topbar */
+/* Die Kopfzeile bleibt bewusst dunkel und durchscheinend: die Marke trägt weiter
+   unten die Köpfe von Routenliste und Legende, hier oben soll das Wandbild
+   durchscheinen. */
 #topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 900;
   display: flex; align-items: center; justify-content: space-between; gap: 14px;
   /* im Vollbild als Web-App liegt die Statusleiste über der Seite */
   padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
-  background: linear-gradient(180deg, rgba(10,13,17,.94) 0%, rgba(10,13,17,.72) 62%, transparent 100%);
+  background: linear-gradient(180deg, rgb(var(--bg-rgb) / .94) 0%,
+                              rgb(var(--bg-rgb) / .72) 62%, transparent 100%);
   pointer-events: none;
 }
 #topbar > * { pointer-events: auto; }
@@ -88,16 +107,19 @@ html, body {
 #panel {
   position: fixed; z-index: 880;
   top: 64px; right: 12px; bottom: 12px; width: var(--panel-w);
-  background: rgba(21,26,33,.93); backdrop-filter: blur(14px);
+  background: rgb(var(--panel-rgb) / .93); backdrop-filter: blur(14px);
   border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
   display: flex; flex-direction: column; overflow: hidden;
 }
 .sheet-handle { display: none; }
 .panel-view { display: flex; flex-direction: column; min-height: 0; flex: 1; }
 .panel-view[hidden] { display: none; }
-.panel-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
-.panel-head h2 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: .02em; }
-.panel-head p { margin: 3px 0 0; font-size: 12.5px; }
+.panel-head {
+  padding: 14px 16px 12px; border-bottom: 1px solid rgb(0 0 0 / .3);
+  background: var(--brand-dark);
+}
+.panel-head h2 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: .02em; color: #fff; }
+.panel-head p { margin: 3px 0 0; font-size: 12.5px; color: rgb(255 255 255 / .72); }
 .panel-foot { padding: 10px 16px; border-top: 1px solid var(--line); font-size: 12.5px; margin: 0; }
 
 /* -------------------------------------------------------------------- Routenliste */
@@ -121,14 +143,16 @@ html, body {
 
 /* ------------------------------------------------------------------ Routendetail */
 .detail-head { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
-#detail-title h2 { margin: 0; font-size: 19px; font-weight: 680; letter-spacing: -.01em; }
-#detail-title .sub { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+#detail-title h2 { margin: 0; font-size: 19px; font-weight: 680; letter-spacing: -.01em; color: #fff; }
+#detail-title .sub { margin: 4px 0 0; font-size: 13px; color: rgb(255 255 255 / .74); }
+.detail-head .btn-back { color: rgb(255 255 255 / .8); }
+.detail-head .btn-back:hover { background: rgb(255 255 255 / .16); color: #fff; }
 #detail-body { overflow-y: auto; flex: 1; padding: 0 0 16px; }
 
 .warn-box {
   margin: 12px 16px; padding: 9px 11px; border-radius: 9px;
   background: var(--warn-bg); color: var(--warn-ink);
-  font-size: 12.5px; line-height: 1.45; border: 1px solid rgba(240,169,59,.28);
+  font-size: 12.5px; line-height: 1.45; border: 1px solid rgb(248 206 138 / .26);
 }
 
 .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 14px 16px; font-size: 13.5px; }
@@ -138,7 +162,7 @@ html, body {
 .detail-section { margin: 18px 16px 0; }
 .detail-section h3 {
   margin: 0 0 7px; font-size: 11.5px; font-weight: 700; letter-spacing: .08em;
-  text-transform: uppercase; color: var(--muted);
+  text-transform: uppercase; color: var(--brand-soft);
 }
 .detail-section p { margin: 0 0 8px; font-size: 13.5px; line-height: 1.55; }
 
@@ -146,12 +170,13 @@ html, body {
 .pitch-table { width: calc(100% - 32px); margin: 0 16px; border-collapse: collapse; font-size: 13px; }
 .pitch-table th {
   text-align: left; font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
-  color: var(--muted); font-weight: 700; padding: 0 8px 6px; border-bottom: 1px solid var(--line);
+  color: var(--brand-soft); font-weight: 700; padding: 0 8px 6px;
+  border-bottom: 1px solid var(--line);
 }
 .pitch-table th:nth-child(1) { width: 34px; }
 .pitch-table th:nth-child(2), .pitch-table th:nth-child(3) { width: 54px; }
 .pitch-row { cursor: pointer; }
-.pitch-row td { padding: 7px 8px; border-bottom: 1px solid rgba(42,51,63,.55); vertical-align: top; }
+.pitch-row td { padding: 7px 8px; border-bottom: 1px solid rgb(43 59 57 / .6); vertical-align: top; }
 .pitch-row:hover td, .pitch-row.is-active td, .pitch-row.is-hover td { background: var(--panel-2); }
 .pitch-row.is-active td:first-child,
 .pitch-row.is-hover td:first-child { box-shadow: inset 2px 0 0 var(--c); }
@@ -164,7 +189,7 @@ html, body {
 
 .variant-card {
   margin: 8px 16px 0; padding: 10px 12px; border: 1px solid var(--line);
-  border-radius: 9px; background: rgba(28,35,44,.6);
+  border-radius: 9px; background: rgb(var(--panel-rgb) / .72);
 }
 .variant-card b { font-size: 13.5px; }
 .variant-card p { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
@@ -175,7 +200,7 @@ html, body {
 .legend {
   /* Auf breiten Bildschirmen neben der Routenliste, nicht darüber. */
   position: fixed; z-index: 890; right: calc(var(--panel-w) + 24px); top: 64px; width: 312px;
-  background: rgba(21,26,33,.96); backdrop-filter: blur(14px);
+  background: rgb(var(--panel-rgb) / .96); backdrop-filter: blur(14px);
   border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
   overflow: hidden; display: flex; flex-direction: column;
 }
@@ -183,19 +208,20 @@ html, body {
 .legend[hidden] { display: none; }
 .legend-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 8px 9px 14px; border-bottom: 1px solid var(--line); flex: none;
+  padding: 11px 8px 9px 14px; border-bottom: 1px solid rgb(0 0 0 / .3); flex: none;
+  background: var(--brand-dark);
 }
-.legend-head h2 { margin: 0; font-size: 13.5px; font-weight: 640; letter-spacing: .02em; }
+.legend-head h2 { margin: 0; font-size: 13.5px; font-weight: 640; letter-spacing: .02em; color: #fff; }
 .legend-close {
   display: flex; padding: 5px; border: 0; border-radius: 7px;
-  background: none; color: var(--muted); cursor: pointer;
+  background: none; color: rgb(255 255 255 / .7); cursor: pointer;
 }
-.legend-close:hover { background: var(--panel-2); color: var(--ink); }
+.legend-close:hover { background: rgb(255 255 255 / .18); color: #fff; }
 .legend-body { max-height: min(62vh, 480px); overflow-y: auto; padding: 10px 14px 14px; }
 .legend-group + .legend-group { margin-top: 14px; }
 .legend-group h4 {
   margin: 0 0 6px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--muted); font-weight: 700;
+  color: var(--brand-soft); font-weight: 700;
 }
 .legend-row { display: grid; grid-template-columns: 50px 1fr; gap: 10px; align-items: center; padding: 4px 0; }
 /* Kalkfarbenes Plättchen: die Symbole sind für helles Gestein gezeichnet und sollen
@@ -215,7 +241,7 @@ html, body {
   border: 1px solid var(--line); box-shadow: var(--shadow);
 }
 .zoombar button {
-  width: 40px; height: 38px; border: 0; background: rgba(21,26,33,.93); color: var(--ink);
+  width: 40px; height: 38px; border: 0; background: rgb(var(--panel-rgb) / .93); color: var(--ink);
   font-size: 20px; line-height: 1; cursor: pointer; backdrop-filter: blur(10px);
 }
 .zoombar button + button { border-top: 1px solid var(--line); }
@@ -234,7 +260,7 @@ html, body {
 .belay-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
 .belay-tag {
   position: absolute; top: 50%; white-space: nowrap;
-  background: rgba(11,14,18,.88); border: 1px solid var(--tagline, #2a333f);
+  background: rgb(var(--bg-rgb) / .9); border: 1px solid var(--tagline, #2b3b39);
   color: #fff; font-size: 10px; font-weight: 600; line-height: 1;
   padding: 3px 5px; border-radius: 5px; letter-spacing: .01em;
 }
@@ -283,7 +309,7 @@ html.topo-detail .belay-tag .tag-detail { display: inline; }
 .route-label {
   display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
   transform: translate(-50%, -150%) scale(var(--topo-scale)); transform-origin: 50% 100%;
-  background: rgba(11,14,18,.86); border: 1px solid var(--c);
+  background: rgb(var(--bg-rgb) / .88); border: 1px solid var(--c);
   padding: 3px 7px; border-radius: 6px; font-size: 11.5px; font-weight: 640;
   color: #fff; cursor: pointer; backdrop-filter: blur(3px);
 }
@@ -308,7 +334,7 @@ html.edit-mode .leaflet-container { cursor: crosshair; }
 /* ------------------------------------------------------------------------ Hinweis */
 .hint {
   position: fixed; z-index: 950; left: 50%; bottom: 22px; transform: translateX(-50%);
-  background: rgba(11,14,18,.94); border: 1px solid var(--line); color: var(--ink);
+  background: rgb(var(--bg-rgb) / .94); border: 1px solid var(--line); color: var(--ink);
   padding: 9px 15px; border-radius: 999px; font-size: 13px; box-shadow: var(--shadow);
   pointer-events: none; animation: hintIn .25s ease;
 }
@@ -321,7 +347,7 @@ html.edit-mode .leaflet-container { cursor: crosshair; }
   box-shadow: var(--shadow);
   max-height: min(84vh, 680px); overflow-y: auto;
 }
-#info-dialog::backdrop { background: rgba(4,6,9,.72); backdrop-filter: blur(3px); }
+#info-dialog::backdrop { background: rgb(var(--bg-rgb) / .78); backdrop-filter: blur(3px); }
 .dialog-inner { padding: 22px 24px 24px; }
 .dialog-inner h2 { margin: 0 0 12px; font-size: 20px; }
 .dialog-inner h3 { margin: 18px 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
@@ -352,7 +378,7 @@ html.edit-mode #panel { display: none; }
 
 #editor {
   position: fixed; z-index: 890; left: 12px; top: 64px; width: 292px;
-  background: rgba(21,26,33,.95); backdrop-filter: blur(14px);
+  background: rgb(var(--panel-rgb) / .95); backdrop-filter: blur(14px);
   border: 1px solid var(--accent); border-radius: var(--radius); box-shadow: var(--shadow);
   padding: 12px 14px 14px;
 }
@@ -360,15 +386,15 @@ html.edit-mode #panel { display: none; }
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   margin-bottom: 4px;
 }
-#editor h3 { margin: 0; font-size: 13.5px; }
+#editor h3 { margin: 0; font-size: 13.5px; color: var(--brand-soft); }
 #editor .editor-close { padding: 4px 10px; font-size: 12.5px; }
 #editor .editor-modes { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
 #editor .editor-modes .btn { padding: 5px 9px; font-size: 12.5px; }
-#editor .btn.is-on { background: var(--accent); border-color: var(--accent); color: #1a1205; font-weight: 650; }
+#editor .btn.is-on { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); font-weight: 650; }
 #editor .editor-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 #editor .editor-stat { font-size: 12px; color: var(--muted); margin: 6px 0 0; line-height: 1.5; }
 #editor textarea {
-  width: 100%; height: 132px; margin-top: 10px; background: #0b0e12; color: #cfe3ff;
+  width: 100%; height: 132px; margin-top: 10px; background: #08100f; color: #bfe4df;
   border: 1px solid var(--line); border-radius: 8px; padding: 8px;
   font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; resize: vertical;
 }
@@ -403,7 +429,7 @@ html.edit-mode #panel { display: none; }
   }
   .sheet-handle::before {
     content: ""; position: absolute; left: 50%; top: 9px; transform: translateX(-50%);
-    width: 40px; height: 4px; border-radius: 2px; background: var(--line);
+    width: 40px; height: 4px; border-radius: 2px; background: var(--brand-dark);
   }
   .panel-head { padding: 4px 14px 8px; }
 
