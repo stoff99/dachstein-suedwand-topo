@@ -31,6 +31,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+
+      # GitHub Pages liefert jede Datei mit max-age=600 aus und lässt keine eigenen
+      # Kopfzeilen zu. Ohne Kennung in der Adresse sieht man eine Änderung bis zu
+      # zehn Minuten lang nicht - oder eine neue Seite mit altem Stylesheet.
+      - name: Dateiverweise mit Auslieferungskennung versehen
+        run: python3 tools/stamp_assets.py --build "${GITHUB_SHA::8}"
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web

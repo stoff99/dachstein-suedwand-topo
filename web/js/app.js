@@ -15,6 +15,18 @@
 import { createTopo } from './topo.js';
 import { initLegend } from './legend.js';
 
+/**
+ * Kennung des Auslieferungsstands, gelesen aus der eigenen Modul-Adresse.
+ *
+ * tools/stamp_assets.py hängt beim Veröffentlichen an jeden eigenen Dateiverweis ein
+ * ?v=... - auch an dieses Modul. Von dort holen wir sie uns und hängen sie an die
+ * Daten, die erst zur Laufzeit geladen werden. Sonst blieben wall.json und
+ * routes.json nach einem Deploy bis zu zehn Minuten im Cache des Browsers hängen.
+ * Lokal ist sie leer, dort liefert der Entwicklungsserver ohnehin ohne Cache aus.
+ */
+const BUILD = new URL(import.meta.url).searchParams.get('v') || '';
+const asset = (path) => (BUILD ? `${path}?v=${BUILD}` : path);
+
 const $ = (sel) => document.querySelector(sel);
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const isMobile = () => window.matchMedia('(max-width: 860px)').matches;
@@ -43,10 +55,10 @@ function showHint(text, ms = 3600) {
 
 async function boot() {
   const [wall, data, summitDoc] = await Promise.all([
-    fetch('data/wall.json').then((r) => r.json()),
-    fetch('data/routes.json').then((r) => r.json()),
+    fetch(asset('data/wall.json')).then((r) => r.json()),
+    fetch(asset('data/routes.json')).then((r) => r.json()),
     // optional: fehlt die Datei, bleibt der Grat eben unbeschriftet
-    fetch('data/summits.json').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    fetch(asset('data/summits.json')).then((r) => (r.ok ? r.json() : null)).catch(() => null),
   ]);
   const img = wall.image;
   const Z = img.maxNativeZoom;

@@ -54,7 +54,19 @@ Rahmen drumherum, und die Web-App-Einstellungen greifen dort (siehe unten).
    `https://BENUTZER.github.io/REPO/`.
 
 Alle Pfade in der Seite sind relativ, sie funktioniert deshalb auch in einem
-Unterverzeichnis. Die Bildkacheln liegen fertig im Repository und werden nicht in der
+Unterverzeichnis.
+
+**Cache.** GitHub Pages liefert jede Datei mit `Cache-Control: max-age=600` aus und
+lässt keine eigenen Kopfzeilen zu. Ohne Gegenmaßnahme sieht man nach einem Deploy bis
+zu zehn Minuten nichts — oder schlimmer: die neue Seite mit altem Stylesheet. Der
+Ablauf hängt deshalb mit `tools/stamp_assets.py` eine Auslieferungskennung an jeden
+eigenen Dateiverweis (`css/app.css?v=1a2b3c4d`), auch an die Modul-Einbindungen
+innerhalb der Skripte. `app.js` liest die Kennung aus seiner eigenen Adresse und
+hängt sie an die Daten, die erst zur Laufzeit geladen werden.
+
+Im Arbeitsverzeichnis bleiben die Verweise sauber — gestempelt wird nur die
+Wegwerfkopie im Ablauf. Übrig bleibt einzig `index.html` selbst: die kann bis zu zehn
+Minuten alt sein. Danach ist alles in einem Zug aktuell, ohne Cache-Leeren von Hand. Die Bildkacheln liegen fertig im Repository und werden nicht in der
 Cloud erzeugt — das entspricht dem späteren Ablauf: Stitchen und Kacheln passiert
 lokal, hochgeladen wird das Ergebnis.
 
