@@ -1,0 +1,40 @@
+{
+ "note": "Bildkoordinaten der Gipfel, erzeugt von tools/make_placeholder_wall.py",
+ "summits": [
+  {
+   "name": "Torstein",
+   "elevation": 2948,
+   "approx": false,
+   "u": 0.2631,
+   "v": 0.1128
+  },
+  {
+   "name": "Mitterspitz",
+   "elevation": 2925,
+   "approx": false,
+   "u": 0.433,
+   "v": 0.1303
+  },
+  {
+   "name": "Hoher Dachstein",
+   "elevation": 2995,
+   "approx": false,
+   "u": 0.5861,
+   "v": 0.1059
+  },
+  {
+   "name": "Dirndl",
+   "elevation": 2832,
+   "approx": true,
+   "u": 0.7101,
+   "v": 0.2171
+  },
+  {
+   "name": "Koppenkarstein",
+   "elevation": 2865,
+   "approx": true,
+   "u": 0.952,
+   "v": 0.183
+  }
+ ]
+}

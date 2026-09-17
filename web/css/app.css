@@ -1,0 +1,431 @@
+/* ------------------------------------------------------------------ Grundlagen */
+:root {
+  /* Die Seite ist bewusst durchgehend dunkel: ein Wandfoto liest sich so am besten.
+     color-scheme sorgt dafür, dass auch Scrollbalken und Formularelemente mitziehen. */
+  color-scheme: dark;
+
+  --bg:        #0d1014;
+  --panel:     #151a21;
+  --panel-2:   #1c232c;
+  --line:      #2a333f;
+  --ink:       #e8eef6;
+  --muted:     #8b98a9;
+  --accent:    #f0a93b;
+  --warn-bg:   #3a2a10;
+  --warn-ink:  #f8ce8a;
+  --radius:    12px;
+  --shadow:    0 10px 34px rgba(0,0,0,.55);
+  --panel-w:   372px;
+
+  /* Von app.js beim Zoomen gesetzt. Alle Topo-Symbole hängen an dieser Variable,
+     damit sie beim Hineinzoomen mitwachsen, aber nie riesig werden. */
+  --topo-scale: 1;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+#map { position: fixed; inset: 0; background: var(--bg); }
+.leaflet-container { background: var(--bg); font: inherit; outline: none; }
+.leaflet-container a { color: var(--accent); }
+
+.muted { color: var(--muted); }
+.small { font-size: 12.5px; }
+
+/* ---------------------------------------------------------------------- Buttons */
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--panel-2);
+  color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 500;
+  padding: 7px 13px; border-radius: 9px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.btn:hover { background: #253040; border-color: #3b485a; }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-ghost { background: rgba(21,26,33,.72); backdrop-filter: blur(10px); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #1a1205; font-weight: 640; }
+.btn-primary:hover { background: #ffc164; border-color: #ffc164; }
+.btn-back { background: transparent; border-color: transparent; color: var(--muted); padding: 5px 8px 5px 4px; }
+.btn.is-on { background: var(--accent); border-color: var(--accent); color: #1a1205; font-weight: 650; }
+.btn.is-on:hover { background: #ffc164; border-color: #ffc164; }
+.btn-back:hover { background: var(--panel-2); color: var(--ink); }
+
+.badge {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  padding: 4px 8px; border-radius: 6px; background: var(--panel-2); color: var(--muted);
+  white-space: nowrap;
+}
+.badge-warn { background: var(--warn-bg); color: var(--warn-ink); }
+
+/* ----------------------------------------------------------------------- Topbar */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  /* im Vollbild als Web-App liegt die Statusleiste über der Seite */
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+  background: linear-gradient(180deg, rgba(10,13,17,.94) 0%, rgba(10,13,17,.72) 62%, transparent 100%);
+  pointer-events: none;
+}
+#topbar > * { pointer-events: auto; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand-logo { display: block; width: 34px; height: 34px; border-radius: 50%; flex: none; }
+.brand-text { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.brand-text strong { font-size: 15.5px; font-weight: 650; letter-spacing: .01em; }
+.brand-text small { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+.btn-text { white-space: nowrap; }
+
+/* ------------------------------------------------------------------------ Panel */
+#panel {
+  position: fixed; z-index: 880;
+  top: 64px; right: 12px; bottom: 12px; width: var(--panel-w);
+  background: rgba(21,26,33,.93); backdrop-filter: blur(14px);
+  border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sheet-handle { display: none; }
+.panel-view { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.panel-view[hidden] { display: none; }
+.panel-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.panel-head h2 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: .02em; }
+.panel-head p { margin: 3px 0 0; font-size: 12.5px; }
+.panel-foot { padding: 10px 16px; border-top: 1px solid var(--line); font-size: 12.5px; margin: 0; }
+
+/* -------------------------------------------------------------------- Routenliste */
+.route-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; }
+.route-item {
+  display: grid; grid-template-columns: 6px 1fr auto; gap: 12px; align-items: center;
+  width: 100%; text-align: left; padding: 11px 12px; border-radius: 10px;
+  background: transparent; border: 1px solid transparent; color: inherit;
+  font: inherit; cursor: pointer;
+}
+.route-item:hover, .route-item.is-hover { background: var(--panel-2); border-color: var(--line); }
+.route-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.route-swatch { width: 6px; height: 34px; border-radius: 3px; background: var(--c); }
+.route-item-main { min-width: 0; }
+.route-item-name { font-weight: 600; font-size: 14.5px; }
+.route-item-meta { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.route-grade {
+  font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums;
+  color: var(--c); white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ Routendetail */
+.detail-head { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+#detail-title h2 { margin: 0; font-size: 19px; font-weight: 680; letter-spacing: -.01em; }
+#detail-title .sub { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+#detail-body { overflow-y: auto; flex: 1; padding: 0 0 16px; }
+
+.warn-box {
+  margin: 12px 16px; padding: 9px 11px; border-radius: 9px;
+  background: var(--warn-bg); color: var(--warn-ink);
+  font-size: 12.5px; line-height: 1.45; border: 1px solid rgba(240,169,59,.28);
+}
+
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 14px 16px; font-size: 13.5px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+
+.detail-section { margin: 18px 16px 0; }
+.detail-section h3 {
+  margin: 0 0 7px; font-size: 11.5px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.detail-section p { margin: 0 0 8px; font-size: 13.5px; line-height: 1.55; }
+
+/* Seillängen-Tabelle */
+.pitch-table { width: calc(100% - 32px); margin: 0 16px; border-collapse: collapse; font-size: 13px; }
+.pitch-table th {
+  text-align: left; font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700; padding: 0 8px 6px; border-bottom: 1px solid var(--line);
+}
+.pitch-table th:nth-child(1) { width: 34px; }
+.pitch-table th:nth-child(2), .pitch-table th:nth-child(3) { width: 54px; }
+.pitch-row { cursor: pointer; }
+.pitch-row td { padding: 7px 8px; border-bottom: 1px solid rgba(42,51,63,.55); vertical-align: top; }
+.pitch-row:hover td, .pitch-row.is-active td, .pitch-row.is-hover td { background: var(--panel-2); }
+.pitch-row.is-active td:first-child,
+.pitch-row.is-hover td:first-child { box-shadow: inset 2px 0 0 var(--c); }
+.pitch-row.is-hover .pitch-n { color: #fff; }
+.pitch-n { font-weight: 700; color: var(--c); font-variant-numeric: tabular-nums; }
+.pitch-grade { font-weight: 640; font-variant-numeric: tabular-nums; }
+.pitch-len, .pitch-note { color: var(--muted); }
+.pitch-note { font-size: 12.5px; }
+.pitch-belay { font-size: 11.5px; color: var(--muted); display: block; margin-top: 2px; }
+
+.variant-card {
+  margin: 8px 16px 0; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 9px; background: rgba(28,35,44,.6);
+}
+.variant-card b { font-size: 13.5px; }
+.variant-card p { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+
+/* ---------------------------------------------------------------------- Legende */
+/* Die Legende hängt unter ihrem Knopf in der Kopfzeile. Früher lag sie unten links
+   und schob sich auf dem Handy über die Routenliste. */
+.legend {
+  /* Auf breiten Bildschirmen neben der Routenliste, nicht darüber. */
+  position: fixed; z-index: 890; right: calc(var(--panel-w) + 24px); top: 64px; width: 312px;
+  background: rgba(21,26,33,.96); backdrop-filter: blur(14px);
+  border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden; display: flex; flex-direction: column;
+}
+/* display: flex sticht das hidden-Attribut aus - sonst ließe sie sich nicht schließen. */
+.legend[hidden] { display: none; }
+.legend-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 8px 9px 14px; border-bottom: 1px solid var(--line); flex: none;
+}
+.legend-head h2 { margin: 0; font-size: 13.5px; font-weight: 640; letter-spacing: .02em; }
+.legend-close {
+  display: flex; padding: 5px; border: 0; border-radius: 7px;
+  background: none; color: var(--muted); cursor: pointer;
+}
+.legend-close:hover { background: var(--panel-2); color: var(--ink); }
+.legend-body { max-height: min(62vh, 480px); overflow-y: auto; padding: 10px 14px 14px; }
+.legend-group + .legend-group { margin-top: 14px; }
+.legend-group h4 {
+  margin: 0 0 6px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
+.legend-row { display: grid; grid-template-columns: 50px 1fr; gap: 10px; align-items: center; padding: 4px 0; }
+/* Kalkfarbenes Plättchen: die Symbole sind für helles Gestein gezeichnet und sollen
+   in der Legende genauso aussehen wie später in der Wand. */
+.legend-row .sym-cell {
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, #cdc7b8, #a8a496);
+  border-radius: 7px; padding: 3px; min-height: 34px;
+}
+.legend-row b { font-size: 13px; font-weight: 600; display: block; }
+.legend-row span { font-size: 11.5px; color: var(--muted); line-height: 1.35; display: block; }
+
+/* --------------------------------------------------------------------- Zoombar */
+.zoombar {
+  position: fixed; z-index: 870; right: calc(var(--panel-w) + 24px); bottom: 12px;
+  display: flex; flex-direction: column; border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--line); box-shadow: var(--shadow);
+}
+.zoombar button {
+  width: 40px; height: 38px; border: 0; background: rgba(21,26,33,.93); color: var(--ink);
+  font-size: 20px; line-height: 1; cursor: pointer; backdrop-filter: blur(10px);
+}
+.zoombar button + button { border-top: 1px solid var(--line); }
+.zoombar button:hover { background: #253040; }
+
+/* ------------------------------------------------------------- Topo auf der Karte */
+/* Die Symbole werden um --topo-scale skaliert; der Ankerpunkt bleibt die Mitte. */
+.topo-marker { background: none; border: 0; }
+.topo-marker .sym { display: block; transform: scale(var(--topo-scale)); transform-origin: 50% 50%; }
+.topo-marker.is-dim { opacity: .13; }
+.topo-marker.is-hidden { display: none; }
+
+.marker-pro { pointer-events: none; }
+
+/* Standplatz: Ankersymbol plus Textfahne, wechselseitig links und rechts */
+.belay-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.belay-tag {
+  position: absolute; top: 50%; white-space: nowrap;
+  background: rgba(11,14,18,.88); border: 1px solid var(--tagline, #2a333f);
+  color: #fff; font-size: 10px; font-weight: 600; line-height: 1;
+  padding: 3px 5px; border-radius: 5px; letter-spacing: .01em;
+}
+.belay-marker.side-right .belay-tag {
+  left: 50%;
+  transform: translate(calc(12px * var(--topo-scale)), -50%) scale(var(--topo-scale));
+  transform-origin: 0 50%;
+}
+.belay-marker.side-left .belay-tag {
+  right: 50%;
+  transform: translate(calc(-12px * var(--topo-scale)), -50%) scale(var(--topo-scale));
+  transform-origin: 100% 50%;
+}
+.belay-tag b { color: var(--c); font-weight: 800; }
+.belay-tag .tag-detail { display: none; font-style: normal; font-weight: 600; margin-left: 5px; }
+html.topo-detail .belay-tag .tag-detail { display: inline; }
+.belay-marker.is-active .belay-tag,
+.belay-marker.is-hover .belay-tag { background: var(--c); color: #12161c; border-color: var(--c); }
+.belay-marker.is-active .belay-tag b,
+.belay-marker.is-hover .belay-tag b { color: #12161c; }
+.belay-marker.is-hover .belay-tag { box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
+.belay-marker { cursor: pointer; }
+
+/* Gipfelnamen am Grat */
+.summit-label {
+  /* inline-block, nicht block: der Marker selbst hat keine Ausdehnung, ein Block
+     darin misst sich als nullbreit. Dann sitzt weder die Zentrierung über dem Gipfel
+     richtig, noch kann die Entzerrung Überlappungen erkennen. */
+  position: relative; display: inline-block; white-space: nowrap; text-align: center;
+  transform: translate(-50%, -100%) scale(var(--topo-scale));
+  transform-origin: 50% 100%;
+  padding-bottom: 13px;
+  color: #eef4fb; font-size: 11px; line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0,0,0,.95), 0 0 9px rgba(0,0,0,.75);
+  pointer-events: none;
+}
+.summit-label.is-crowded, .route-label.is-crowded { display: none; }
+.summit-label b { display: block; font-weight: 650; letter-spacing: .05em; }
+.summit-label i { display: block; font-style: normal; font-size: 9.5px; opacity: .7; }
+.summit-label::after {
+  content: ""; position: absolute; left: 50%; bottom: 0; width: 1px; height: 11px;
+  background: linear-gradient(to bottom, rgba(238,244,251,.8), rgba(238,244,251,0));
+}
+
+/* Routenname am Einstieg */
+.route-label {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  transform: translate(-50%, -150%) scale(var(--topo-scale)); transform-origin: 50% 100%;
+  background: rgba(11,14,18,.86); border: 1px solid var(--c);
+  padding: 3px 7px; border-radius: 6px; font-size: 11.5px; font-weight: 640;
+  color: #fff; cursor: pointer; backdrop-filter: blur(3px);
+}
+.route-label em { font-style: normal; color: var(--c); font-weight: 800; }
+.route-label.below {
+  transform: translate(-50%, 55%) scale(var(--topo-scale));
+  transform-origin: 50% 0;
+}
+.route-label.is-dim { opacity: .16; }
+
+.leaflet-interactive { cursor: pointer; }
+
+/* Zeichenmodus: nichts auf der Karte darf Klicks abfangen, sie gehören alle dem Stift.
+   Leaflet setzt pointer-events auf die einzelnen Linien und Marker, deshalb muss die
+   Regel bis auf die Kindelemente durchgreifen. */
+html.edit-mode .leaflet-marker-pane,
+html.edit-mode .leaflet-overlay-pane,
+html.edit-mode .leaflet-marker-pane *,
+html.edit-mode .leaflet-overlay-pane * { pointer-events: none !important; }
+html.edit-mode .leaflet-container { cursor: crosshair; }
+
+/* ------------------------------------------------------------------------ Hinweis */
+.hint {
+  position: fixed; z-index: 950; left: 50%; bottom: 22px; transform: translateX(-50%);
+  background: rgba(11,14,18,.94); border: 1px solid var(--line); color: var(--ink);
+  padding: 9px 15px; border-radius: 999px; font-size: 13px; box-shadow: var(--shadow);
+  pointer-events: none; animation: hintIn .25s ease;
+}
+@keyframes hintIn { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* ------------------------------------------------------------------------ Dialog */
+#info-dialog {
+  border: 1px solid var(--line); border-radius: 14px; background: var(--panel);
+  color: var(--ink); max-width: 560px; width: calc(100% - 32px); padding: 0;
+  box-shadow: var(--shadow);
+  max-height: min(84vh, 680px); overflow-y: auto;
+}
+#info-dialog::backdrop { background: rgba(4,6,9,.72); backdrop-filter: blur(3px); }
+.dialog-inner { padding: 22px 24px 24px; }
+.dialog-inner h2 { margin: 0 0 12px; font-size: 20px; }
+.dialog-inner h3 { margin: 18px 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.dialog-inner p, .dialog-inner li { font-size: 14px; line-height: 1.6; margin: 0 0 8px; }
+.dialog-inner ol { margin: 0 0 8px; padding-left: 20px; }
+.dialog-inner code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+.dialog-inner .btn { margin-top: 16px; }
+.dialog-inner .warn-box { margin: 0 0 12px; }
+
+/* ------------------------------------------------------------------------ Loader */
+#loader {
+  position: fixed; inset: 0; z-index: 2000; display: grid; place-content: center;
+  gap: 14px; justify-items: center; background: var(--bg); color: var(--muted);
+  transition: opacity .35s; font-size: 13.5px;
+}
+body.is-ready #loader { opacity: 0; pointer-events: none; }
+.spinner {
+  width: 30px; height: 30px; border: 3px solid var(--line); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* -------------------------------------------------------------------- Zeichenmodus */
+/* Beim Zeichnen ist die Routenliste nur im Weg - und ihr Platz gehört der Wand.
+   Das Padding der Kartenansicht rechnet automatisch mit, weil es die Panelbreite
+   misst und die bei display:none null ist. */
+html.edit-mode #panel { display: none; }
+
+#editor {
+  position: fixed; z-index: 890; left: 12px; top: 64px; width: 292px;
+  background: rgba(21,26,33,.95); backdrop-filter: blur(14px);
+  border: 1px solid var(--accent); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 12px 14px 14px;
+}
+#editor .editor-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-bottom: 4px;
+}
+#editor h3 { margin: 0; font-size: 13.5px; }
+#editor .editor-close { padding: 4px 10px; font-size: 12.5px; }
+#editor .editor-modes { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+#editor .editor-modes .btn { padding: 5px 9px; font-size: 12.5px; }
+#editor .btn.is-on { background: var(--accent); border-color: var(--accent); color: #1a1205; font-weight: 650; }
+#editor .editor-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+#editor .editor-stat { font-size: 12px; color: var(--muted); margin: 6px 0 0; line-height: 1.5; }
+#editor textarea {
+  width: 100%; height: 132px; margin-top: 10px; background: #0b0e12; color: #cfe3ff;
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px;
+  font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; resize: vertical;
+}
+
+/* ------------------------------------------------------------------------- Mobil */
+@media (max-width: 860px) {
+  :root { --panel-w: auto; }
+
+  #topbar { padding: calc(8px + env(safe-area-inset-top, 0px)) 10px 8px; gap: 8px; }
+  .brand-logo { width: 30px; height: 30px; }
+  .brand-text strong { font-size: 14px; }
+  .brand-text small { display: none; }
+
+  /* Nur noch Symbole - für vier beschriftete Knöpfe ist oben kein Platz. */
+  .topbar-actions { gap: 5px; }
+  .topbar-actions .btn-text { display: none; }
+  .topbar-actions .btn { padding: 8px; }
+  /* Routen einzeichnen ist auf einem Telefon nichts - Knopf raus. */
+  #btn-edit { display: none; }
+
+  /* Panel wird zum Bottom Sheet */
+  #panel {
+    top: auto; left: 0; right: 0; bottom: 0; width: auto;
+    max-height: min(52vh, 360px); border-radius: 16px 16px 0 0; border-bottom: 0;
+    transition: transform .28s ease;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  body.sheet-collapsed #panel { transform: translateY(calc(100% - 54px)); }
+  .sheet-handle {
+    display: block; width: 100%; height: 22px; border: 0; background: none;
+    cursor: pointer; position: relative; flex: none;
+  }
+  .sheet-handle::before {
+    content: ""; position: absolute; left: 50%; top: 9px; transform: translateX(-50%);
+    width: 40px; height: 4px; border-radius: 2px; background: var(--line);
+  }
+  .panel-head { padding: 4px 14px 8px; }
+
+  /* Auf dem Handy nach unten: dann bleibt die Wand darüber sichtbar.
+     Erreichbar bleibt der Zeichenmodus über ?edit=1. */
+  #editor { left: 8px; right: 8px; width: auto; top: auto; bottom: 8px; }
+  #editor textarea { height: 72px; }
+
+  .legend { left: 8px; right: 8px; top: calc(52px + env(safe-area-inset-top, 0px)); width: auto; }
+  .legend-body { max-height: 46vh; }
+
+  .zoombar { right: 8px; bottom: calc(66px + env(safe-area-inset-bottom, 0px)); }
+
+  .facts, .detail-section, .warn-box { margin-left: 14px; margin-right: 14px; }
+  .pitch-table { width: calc(100% - 28px); margin: 0 14px; }
+}
+
+@media (max-width: 460px) {
+  .brand-text strong { font-size: 13.5px; }
+  .topbar-actions .btn { padding: 7px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dachstein Südwand Topo</title>
+<meta name="description" content="Klickbarer Prototyp einer zoombaren Online-Topo für alpines Bergsteigen.">
+<!-- Als Web-App zum Home-Bildschirm: dann fällt die Browserleiste weg und die
+     Seite läuft bildschirmfüllend. Gilt für die eigene Domain, nicht in einem
+     fremden Rahmen. -->
+<meta name="theme-color" content="#0d1014">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Südwand Topo">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<link rel="icon" href="img/logo-mayerl-alpin.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="map" role="application" aria-label="Zoombare Wandansicht mit Topo"></div>
+
+<header id="topbar">
+  <div class="brand">
+    <img class="brand-logo" src="img/logo-mayerl-alpin.svg" alt="Mayerl Alpin" width="34" height="34">
+    <span class="brand-text">
+      <strong id="wall-name">Dachstein Südwand</strong>
+      <small id="wall-sub">Frontalansicht</small>
+    </span>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" id="btn-legend" type="button" aria-pressed="false" title="Legende">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="5.5" cy="6.5" r="2.2" fill="currentColor"/><path d="M3.6 17.8 L5.5 13.6 L7.4 17.8 Z" fill="currentColor"/><path d="M10.5 6.5 H20.5 M10.5 12 H20.5 M10.5 17.5 H20.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+      <span class="btn-text">Legende</span>
+    </button>
+    <button class="btn btn-ghost" id="btn-edit" type="button" aria-pressed="false" title="Routen einzeichnen">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 20 L4.6 16.2 L15.8 5 L19 8.2 L7.8 19.4 Z M14.2 6.6 L17.4 9.8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      <span class="btn-text" id="btn-edit-label">Zeichnen</span>
+    </button>
+    <button class="btn btn-ghost" id="btn-info" type="button" title="Über dieses Topo">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 10.8 V16.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.25" fill="currentColor"/></svg>
+      <span class="btn-text">Über dieses Topo</span>
+    </button>
+    <button class="btn btn-ghost" id="btn-reset" type="button" title="Gesamtansicht">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 9.2 V4.6 H8.6 M15.4 4.6 H20 V9.2 M20 14.8 V19.4 H15.4 M8.6 19.4 H4 V14.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="btn-text">Gesamtansicht</span>
+    </button>
+  </div>
+</header>
+
+<aside id="panel" aria-label="Routen">
+  <button class="sheet-handle" id="sheet-handle" type="button" aria-label="Panel auf- oder zuklappen"></button>
+
+  <!-- Übersicht: Routenliste -->
+  <section id="view-list" class="panel-view">
+    <div class="panel-head">
+      <h2>Routen</h2>
+      <p class="muted" id="route-count"></p>
+    </div>
+    <ul id="route-list" class="route-list"></ul>
+    <p class="panel-foot muted">Route anklicken — in der Wand oder hier in der Liste.</p>
+  </section>
+
+  <!-- Detail: eine Route -->
+  <section id="view-detail" class="panel-view" hidden>
+    <div class="panel-head detail-head">
+      <button class="btn btn-back" id="btn-back" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 5 L8 12 L15 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Alle Routen
+      </button>
+      <div id="detail-title"></div>
+    </div>
+    <div id="detail-body"></div>
+  </section>
+</aside>
+
+<div id="legend" class="legend" role="dialog" aria-label="Legende" hidden>
+  <div class="legend-head">
+    <h2>Legende</h2>
+    <button class="legend-close" id="legend-close" type="button" aria-label="Legende schließen">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="legend-body" id="legend-body"></div>
+</div>
+
+<div id="zoombar" class="zoombar">
+  <button type="button" id="btn-zoom-in" aria-label="Hineinzoomen">+</button>
+  <button type="button" id="btn-zoom-out" aria-label="Herauszoomen">−</button>
+</div>
+
+<div id="hint" class="hint" hidden></div>
+
+<dialog id="info-dialog">
+  <div class="dialog-inner">
+    <h2>Über dieses Topo</h2>
+    <p class="warn-box" id="info-placeholder" hidden></p>
+    <h3>Was das hier ist</h3>
+    <p>Ein klickbarer Prototyp für eine Online-Topo im alpinen Bergsteigen. Die Wand liegt
+      als Kachel-Pyramide vor: der Viewer lädt immer nur die Bildkacheln, die gerade
+      sichtbar sind. Dadurch bleibt das Bild bis in den tiefsten Zoom scharf, ohne dass
+      beim Öffnen ein Riesenbild geladen werden muss.</p>
+    <h3>So entsteht das echte Bild</h3>
+    <ol>
+      <li>Rund 250 Teleaufnahmen von einem einzigen Standpunkt, manuell belichtet, etwa
+        30 % Überlappung.</li>
+      <li>Alle Aufnahmen werden <em>einmal offline</em> zu einem Gigapixel-Panorama
+        gestitcht (PTGui oder Hugin). Erst dadurch entsteht ein durchgehendes
+        Koordinatensystem für das Topo.</li>
+      <li>Das Panorama wird in 256-Pixel-Kacheln über mehrere Zoomstufen zerschnitten
+        und als statische Dateien ausgeliefert.</li>
+    </ol>
+    <h3>Topo-Daten</h3>
+    <p>Routenlinien, Standplätze und Haken liegen in normierten Koordinaten (0 bis 1)
+      getrennt vom Bild. Ein neuer Panorama-Export macht das Topo deshalb nicht kaputt.
+      Gezeichnet werden die Linien direkt in der Wand — dafür gibt es einen
+      Zeichenmodus.</p>
+    <p class="muted small">Zum Einzeichnen oben auf <b>Zeichnen</b> klicken. Dort werden
+      Linie, Standplätze und Haken gesetzt und als JSON exportiert.</p>
+    <button class="btn btn-primary" id="info-close" type="button">Schließen</button>
+  </div>
+</dialog>
+
+<div id="loader"><div class="spinner"></div><p>Wand wird geladen …</p></div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+ "note": "Gipfelnamen zur Silhouette aus Südwand.jpg. photoU bezieht sich auf die Breite des Fotos, imageU auf die Breite des erzeugten Bildes (nur für Gipfel, die das Foto nicht mehr zeigt).",
+ "summits": [
+  { "name": "Torstein",        "elevation": 2948, "photoU": 0.299 },
+  { "name": "Mitterspitz",     "elevation": 2925, "photoU": 0.492 },
+  { "name": "Hoher Dachstein", "elevation": 2995, "photoU": 0.666 },
+  { "name": "Dirndl",          "elevation": 2832, "photoU": 0.807, "approx": true },
+  { "name": "Koppenkarstein",  "elevation": 2865, "imageU": 0.952, "approx": true }
+ ]
+}

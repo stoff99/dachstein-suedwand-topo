@@ -1,0 +1,16 @@
+# Zwischenstände der Wandberechnung (wird aus tools/ neu erzeugt)
+work/
+
+# Veröffentlichungsvariante für den Artifact-Link (wird neu gebaut)
+dist-artifact/
+
+# Das Referenzfoto bleibt draußen: zehn Megabyte, und die Website braucht es nicht.
+# Für den Generator genügt tools/ridge_dachstein.json, das daraus gewonnene
+# Höhenprofil des Grats. Wer das Foto im Repository haben will, entfernt die Zeile.
+Südwand.jpg
+
+.DS_Store
+__pycache__/
+
+# web/tiles/ bewusst NICHT ignorieren: die Kacheln sind die Website. Ohne sie
+# veröffentlicht GitHub Pages eine leere Wand.

@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "name": "Dachstein Südwand",
+    "subtitle": "Frontalansicht — PLATZHALTERBILD, kein echtes Foto",
+    "placeholder": true,
+    "photo": "synthetisch erzeugt mit tools/make_placeholder_wall.py",
+    "note": "Sobald das echte Panorama gestitcht ist, mit tools/make_tiles.py ersetzen."
+  },
+  "image": {
+    "version": "6aabad93",
+    "width": 10240,
+    "height": 5120,
+    "tileSize": 256,
+    "minZoom": 0,
+    "maxNativeZoom": 6,
+    "maxZoom": 9,
+    "tileUrl": "tiles/{z}/{x}/{y}.jpg?v=6aabad93",
+    "tileCount": 1074,
+    "source": "wall_placeholder.jpg",
+    "generated": "2026-09-17 11:06:27"
+  }
+}
